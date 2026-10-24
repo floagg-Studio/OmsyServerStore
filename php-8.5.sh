@@ -239,7 +239,7 @@ session.save_path = "tcp://127.0.0.1:6379?auth=${REDIS_PASSWORD}"
 extension=${PATH_ROOT}/sys/php85/lib/php/extensions/no-debug-non-zts-20250925/redis.so
 EOF
 
-cat > "${CONFDIR}/php-handlers/default.com.conf" <<EOF
+cat > "$PATH_ROOT/share/config/apache/php-handlers/default.com.conf" <<EOF
 # PHP-FPM 8.5.12
 <FilesMatch "\.php$">
 	SetHandler "proxy:unix:${PATH_ROOT}/share/run/php-fpm85.sock|fcgi://localhost"
