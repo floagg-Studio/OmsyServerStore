@@ -55,14 +55,14 @@ if [[ -f /etc/os-release && $(grep -c "Ubuntu" /etc/os-release) -gt 0 ]]; then
 	ldconfig
 fi
 
-sudo ln -sf "$PATH_ROOT/sys/lib/openssl/libssl.3.dylib" "$PATH_ROOT/sys/lib/libssl.dylib"
-sudo ln -sf "$PATH_ROOT/sys/lib/openssl/libcrypto.3.dylib" "$PATH_ROOT/sys/lib/libcrypto.dylib"
-ls -l "$PATH_ROOT/sys/lib/libssl.dylib" "$PATH_ROOT/sys/lib/libcrypto.dylib"
+# sudo ln -sf "$PATH_ROOT/sys/lib/openssl/libssl.3.dylib" "$PATH_ROOT/sys/lib/libssl.dylib"
+# sudo ln -sf "$PATH_ROOT/sys/lib/openssl/libcrypto.3.dylib" "$PATH_ROOT/sys/lib/libcrypto.dylib"
+# ls -l "$PATH_ROOT/sys/lib/libssl.dylib" "$PATH_ROOT/sys/lib/libcrypto.dylib"
 
-cd /Users/julie/Documents/OmsyServer/sys/lib
-sudo cp -p "$PATH_ROOT/sys/lib/openssl/libssl.3.dylib" "$PATH_ROOT/sys/lib/openssl/libcrypto.3.dylib" "$PATH_ROOT/sys/lib"
-sudo ln -s "$PATH_ROOT/sys/lib/libssl.3.dylib" "$PATH_ROOT/sys/lib/libssl.dylib"
-sudo ln -s "$PATH_ROOT/sys/lib/libcrypto.3.dylib" "$PATH_ROOT/sys/lib/libcrypto.dylib"
+# cd /Users/julie/Documents/OmsyServer/sys/lib
+# sudo cp -p "$PATH_ROOT/sys/lib/openssl/libssl.3.dylib" "$PATH_ROOT/sys/lib/openssl/libcrypto.3.dylib" "$PATH_ROOT/sys/lib"
+# sudo ln -s "$PATH_ROOT/sys/lib/libssl.3.dylib" "$PATH_ROOT/sys/lib/libssl.dylib"
+# sudo ln -s "$PATH_ROOT/sys/lib/libcrypto.3.dylib" "$PATH_ROOT/sys/lib/libcrypto.dylib"
 
 if [[ "$(uname -s)" == "Darwin" ]]; then
 	sudo cp /etc/ssl/cert.pem $CONFIG_DIR/openssl/cert.pem 2>/dev/null || \
@@ -81,3 +81,11 @@ $PATH_ROOT/sys/bin/openssl req -x509 -nodes -days 3650 \
 chmod 644 $OPENSSL_CERT/*.crt
 chmod 600 $OPENSSL_PRIVATE/*.key
 chown omsy:omsy $OPENSSL_CERT/*.crt $OPENSSL_PRIVATE/*.key
+
+echo "Cp, ln, ln, ls"
+cd "$PATH_ROOT/sys/lib"
+sudo cp -p openssl/libssl.3.dylib openssl/libcrypto.3.dylib .
+sudo ln -s libssl.3.dylib libssl.dylib
+sudo ln -s libcrypto.3.dylib libcrypto.dylib
+ls -l libssl* libcrypto*
+echo "yerminé"

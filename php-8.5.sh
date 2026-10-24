@@ -1,45 +1,14 @@
 #!/bin/bash
 set -e
 
-PATH_ROOT="/Users/julie/Documents/OmsyServer"
-ROOT=$(pwd)
+SCRIPT_DIR="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)"
+source "$SCRIPT_DIR/common.sh"
 
-if [[ "$(uname -s)" == "Darwin" ]]; then
-	SED_INPLACE=(-i '')
-else
-	SED_INPLACE=(-i)
-fi
-
-echo $PATH_ROOT
-
-names=(
-	php85
-)
-urls=(
+download_source \
+	"php85" \
 	"https://www.php.net/distributions/php-8.5.12.tar.gz"
-)
 
-for i in "${!names[@]}"; do
-	file="${names[$i]}"
-	url="${urls[$i]}"
-	filename=$(basename "${url}")
-	
-	echo "--- Traitement de ${file} ---"
-	wget -q --show-progress "${url}" -O "$PATH_ROOT/source/$filename"
-	dir=$(tar -tf "$PATH_ROOT/source/$filename" | head -1 | cut -d/ -f1)
-	tar -xf "$PATH_ROOT/source/$filename" -C "$PATH_ROOT/source/"
-	mv "$PATH_ROOT/source/$dir" "$PATH_ROOT/source/${file}"
-	chmod -R 755 "$PATH_ROOT/source/${file}"
-done
-
-dirs=(
-	"$PATH_ROOT/sys/lib/php"
-	"$PATH_ROOT/share/logs/php"
-	"$PATH_ROOT/share/config/php"
-)
-mkdir -p "${dirs[@]}"
-
-SRC_DIR="${ROOT}/source/php85"
+SRC_DIR="$PATH_ROOT/source/php85"
 
 PREFIX="$PATH_ROOT/sys/php85"
 CONFDIR="$PATH_ROOT/share/config/php"
@@ -47,13 +16,12 @@ LOGDIR="$PATH_ROOT/share/logs/php"
 EXTDIR="$PATH_ROOT/sys/lib/php/8.5"
 OPENSSL_PREFIX="$PATH_ROOT/sys"
 
-if [[ "$(uname -s)" == "Darwin" ]]; then
-	OS="Macos"
-	JOBS=$(sysctl -n hw.ncpu)
-elif [[ -f /etc/os-release && $(grep -c "Ubuntu" /etc/os-release) -gt 0 ]]; then
-	OS="Ubuntu"
-	JOBS=$(nproc)
-fi
+dirs=(
+	"$PATH_ROOT/sys/lib/php"
+	$LOGDIR
+	$CONFDIR
+)
+mkdir -p "${dirs[@]}"
 
 cd "$SRC_DIR"
 if [[ "$(uname -s)" == "Darwin" ]]; then

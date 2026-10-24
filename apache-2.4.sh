@@ -1,61 +1,28 @@
 #!/bin/bash
 set -e
 
-PATH_ROOT="/Users/julie/Documents/OmsyServer"
-ROOT=$(pwd)
+SCRIPT_DIR="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)"
+source "$SCRIPT_DIR/common.sh"
 
-if [[ "$(uname -s)" == "Darwin" ]]; then
-	OS="Macos"
-	JOBS=$(sysctl -n hw.ncpu)
-else
-	OS="Ubuntu"
-	JOBS=$(nproc)
-fi
-
-names=(
-	apache
-)
-urls=(
+download_source \
+	"apache" \
 	"https://archive.apache.org/dist/httpd/httpd-2.4.65.tar.gz"
-)
-
-for i in "${!names[@]}"; do
-	file="${names[$i]}"
-	url="${urls[$i]}"
-	filename=$(basename "${url}")
-
-	echo "--- Traitement de ${file} ---"
-
-	wget -q --show-progress "${url}" -O "$PATH_ROOT/source/$filename"
-
-	tmp=$(mktemp -d -p "$PATH_ROOT/source")
-	tar -xf "$PATH_ROOT/source/$filename" -C "$tmp"
-
-	# Cherche le dossier extrait (ignore package.xml & co)
-	dir=$(find "$tmp" -mindepth 1 -maxdepth 1 -type d | head -1)
-
-	rm -rf "$PATH_ROOT/source/${file}"
-	mv "$dir" "$PATH_ROOT/source/${file}"
-	rm -rf "$tmp"
-
-	chmod -R 755 "$PATH_ROOT/source/${file}"
-done
-
-dirs=(
-	"$PATH_ROOT/sys/lib/apache"
-	"$PATH_ROOT/share/logs/apache"
-	"$PATH_ROOT/share/config/apache"
-	"$PATH_ROOT/share/config/apache/vhosts"
-	"$PATH_ROOT/usr/default.com/public"
-)
-mkdir -p "${dirs[@]}"
 
 PREFIX="$PATH_ROOT/sys"
 CONFDIR="$PATH_ROOT/share/config/apache"
 LOGDIR="$PATH_ROOT/share/logs/apache"
 WWWDIR="$PATH_ROOT/usr"
 
-cd "${ROOT}/source/pcre2"
+dirs=(
+	"$PATH_ROOT/sys/lib/apache"
+	"$PATH_ROOT/share/logs/apache"
+	$CONFDIR
+	"$CONFDIR/vhosts"
+	"$WWWDIR/default.com/public"
+)
+mkdir -p "${dirs[@]}"
+
+cd "$PATH_ROOT/source/pcre2"
 if [[ "$(uname -s)" == "Darwin" ]]; then
 	./configure \
 		--prefix="${PREFIX}" \
@@ -85,7 +52,8 @@ if [[ -f /etc/os-release && $(grep -c "Ubuntu" /etc/os-release) -gt 0 ]]; then
 	ldconfig
 fi
 
-cd "${ROOT}/source/nghttp2"
+
+cd "$PATH_ROOT/source/nghttp2"
 if [[ "$(uname -s)" == "Darwin" ]]; then
 	./configure \
 		--prefix="${PREFIX}" \
@@ -124,11 +92,11 @@ if [[ -f /etc/os-release && $(grep -c "Ubuntu" /etc/os-release) -gt 0 ]]; then
 	ldconfig
 fi
 
-mv "$ROOT/source/apr" "$ROOT/source/apache/srclib/apr"
-mv "$ROOT/source/apr-util" "$ROOT/source/apache/srclib/apr-util"
+mv "$PATH_ROOT/source/apr" "$PATH_ROOT/source/apache/srclib/apr"
+mv "$PATH_ROOT/source/apr-util" "$PATH_ROOT/source/apache/srclib/apr-util"
 
 
-cd "${ROOT}/source/apache"
+cd "$PATH_ROOT/source/apache"
 if [[ "$(uname -s)" == "Darwin" ]]; then
 	./configure \
 		--prefix="${PREFIX}" \
@@ -356,7 +324,7 @@ EOF
 
 mkdir -p "${CONFDIR}/php-handlers"
 
-cp "$ROOT/source/apache/docs/conf/mime.types" "${CONFDIR}/mime.types" 2>/dev/null || \
+cp "$PATH_ROOT/source/apache/docs/conf/mime.types" "${CONFDIR}/mime.types" 2>/dev/null || \
 cp "${PATH_ROOT}/sys/conf/mime.types" "${CONFDIR}/mime.types" 2>/dev/null || true
 
 mkdir -p $PATH_ROOT/usr/default.com/public

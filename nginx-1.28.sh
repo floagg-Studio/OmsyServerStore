@@ -36,9 +36,9 @@ if [[ "$(uname -s)" == "Darwin" ]]; then
 		--http-client-body-temp-path="$PATH_ROOT/share/run/nginx/client_temp" \
 		--http-proxy-temp-path="$PATH_ROOT/share/run/nginx/proxy_temp" \
 		--http-fastcgi-temp-path="$PATH_ROOT/share/run/nginx/fastcgi_temp" \
-		--with-openssl="${ROOT}/source/openssl" \
+		--with-openssl="$PATH_ROOT/source/openssl" \
 		--with-openssl-opt="no-tests" \
-		--with-zlib="${ROOT}/source/zlib" \
+		--with-zlib="$PATH_ROOT/source/zlib" \
 		--with-pcre \
 		--with-pcre-jit \
 		--with-http_ssl_module \
@@ -76,9 +76,9 @@ elif [[ -f /etc/os-release && $(grep -c "Ubuntu" /etc/os-release) -gt 0 ]]; then
 		--http-client-body-temp-path="$PATH_ROOT/share/run/nginx/client_temp" \
 		--http-proxy-temp-path="$PATH_ROOT/share/run/nginx/proxy_temp" \
 		--http-fastcgi-temp-path="$PATH_ROOT/share/run/nginx/fastcgi_temp" \
-		--with-openssl="${ROOT}/source/openssl" \
+		--with-openssl="$PATH_ROOT/source/openssl" \
 		--with-openssl-opt="no-tests" \
-		--with-zlib="${ROOT}/source/zlib" \
+		--with-zlib="$PATH_ROOT/source/zlib" \
 		--with-pcre \
 		--with-pcre-jit \
 		--with-http_ssl_module \
@@ -169,7 +169,7 @@ http {
 }
 EOF
 
-cp "${ROOT}/source/nginx/conf/mime.types" "${CONFDIR}/mime.types"
+cp "$PATH_ROOT/source/nginx/conf/mime.types" "${CONFDIR}/mime.types"
 
 mkdir -p "${CONFDIR}/sites"
 cat > "${CONFDIR}/sites/default.com.conf" <<EOF
