@@ -5,9 +5,9 @@ SCRIPT_DIR="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)"
 source "$SCRIPT_DIR/common.sh"
 
 find ./ -type f -name "*.sh" ! -name "install.sh" -exec sed "${SED_INPLACE[@]}" \
-	-e "s|PATH_ROOT=/Users/julie/Documents/OmsyServer|PATH_ROOT=$PATH_ROOT|g" \
+	-e "s|PATH_ROOT=/omsy|PATH_ROOT=$PATH_ROOT|g" \
 	-e "s|PATH_ROOT=\"/omsy\"|PATH_ROOT=\"$PATH_ROOT\"|g" \
-	-e "s|PATH_ROOT='/Users/julie/Documents/OmsyServer'|PATH_ROOT='$PATH_ROOT'|g" {} +
+	-e "s|PATH_ROOT='/omsy'|PATH_ROOT='$PATH_ROOT'|g" {} +
 
 if [[ "$(uname -s)" == "Darwin" ]]; then
 	echo "Installation pour macOS"
@@ -175,24 +175,76 @@ dirs=(
 
 	# "/usr/share/empty"
 )
-
 mkdir -p "${dirs[@]}"
 chown -R omsy:omsy "$PATH_ROOT"
 chmod -R 755 "$PATH_ROOT"
 
-echo "Installation du serveur de base"
-echo sh "openssl-3.5.sh"
+# echo "Installation du serveur de base"
+# sh "openssl-3.5.sh"
 # echo sh "vsftpd.sh"
 # echo sh "nodejs.sh"
 
-echo "Installation des base de donées"
-echo sh "mysql-8.4.sh"
-# echo sh "redis.sh"
+# echo "Installation des base de donées"
+# sh "mysql-8.4.sh"
+# sh "redis.sh"
 
-echo "Installation des serveur web"
-# echo sh "nginx.sh"
-# echo sh "apache.sh"
+# echo "Installation des serveur web"
+# sh "nginx.sh"
+# sh "apache.sh"
 
-echo "Installation des extention de codes"
-# echo sh "php85.sh"
-# echo sh "phpmyadmin.sh"
+# echo "Installation des extention de codes"
+# sh "php85.sh"
+# sh "phpmyadmin.sh"
+
+echo "Création de fichier pour omsyctl"
+
+cat > "$PATH_ROOT/share/config/omsyctl/omsy.conf" <<EOF
+path="$PATH_ROOT"
+confdir="$PATH_ROOT/share/config/omsystackctl/"
+EOF
+
+cat > "$PATH_ROOT/share/config/omsyctl/openssl.conf" <<EOF
+label="OpenSSL"
+shell="$PATH_ROOT/src/services/openssl.sh"
+bins="openssl"
+EOF
+
+cat > "$PATH_ROOT/share/config/omsyctl/mysql.conf" <<EOF
+label="MySQL / MariaDB"
+shell="$PATH_ROOT/source/mysql.sh"
+bins="mysqld","mariadbd","mysql"
+start="$PATH_ROOT/sys/bin/mysqld --defaults-file=$PATH_ROOT/share/config/mysql/my.cnf --user=$USER"
+stop="pkill -TERM mysqld_safe", "$PATH_ROOT/sys/bin/mysqladmin --socket=$PATH_ROOT/share/run/mysql.sock -u root shutdown"
+EOF
+
+cat > "$PATH_ROOT/share/config/omsyctl/redis.conf" <<EOF
+label="Redis"
+shell="$PATH_ROOT/src/services/redis.sh"
+bins="redis-server","redis"
+start="$PATH_ROOT/sys/bin/redis-server $PATH_ROOT/share/config/redis/redis.conf --daemonize no"
+stop="$PATH_ROOT/sys/bin/redis-cli shutdown"
+EOF
+
+cat > "$PATH_ROOT/share/config/omsyctl/nginx.conf" <<EOF
+label="Nginx"
+shell="$PATH_ROOT/src/services/nginx.sh"
+bins="nginx"
+start="$PATH_ROOT/sys/bin/nginx -c $PATH_ROOT/share/config/nginx/nginx.conf"
+stop="kill -QUIT \$(cat $PATH_ROOT/share/run/nginx.pid)"
+EOF
+
+cat > "$PATH_ROOT/share/config/omsyctl/apache.conf" <<EOF
+label="Apache"
+shell="$PATH_ROOT/src/services/apache.sh"
+bins="apache2","httpd"
+start="$PATH_ROOT/sys/bin/apachectl -f $PATH_ROOT/share/config/apache/httpd.conf -k start"
+stop="$PATH_ROOT/sys/bin/apachectl -f $PATH_ROOT/share/config/apache/httpd.conf -k stop"
+EOF
+
+cat > "$PATH_ROOT/share/config/omsyctl/phpfpm85.conf" <<EOF
+label="PHP-FPM85"
+shell="$PATH_ROOT/src/services/php85.sh"
+bins="php-fpm","php-fpm85","php8.5-fpm"
+start="$PATH_ROOT/sys/bin/php-fpm85 --fpm-config $PATH_ROOT/share/config/php/php-fpm85.conf"
+stop="kill \$(cat $PATH_ROOT/share/run/php-fpm85.pid)"
+EOF
