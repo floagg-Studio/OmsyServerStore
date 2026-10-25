@@ -169,6 +169,7 @@ dirs=(
 	"$PATH_ROOT/sys/module"
 	"$PATH_ROOT/share"
 	"$PATH_ROOT/share/config"
+	"$PATH_ROOT/share/config/omsyctl"
 	"$PATH_ROOT/share/logs"
 	"$PATH_ROOT/share/empty"
 	"$PATH_ROOT/usr"
